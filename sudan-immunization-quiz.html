@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Immunization Quiz – Sudan EPI</title>
+<style>
+:root{--bg:#f4f7fb;--c:#fff;--t:#14213d;--m:#5b6b82;--p:#1f4e8c;--pl:#e3ecf8;--g:#1e8e4e;--gl:#e2f5e9;--r:#c62828;--rl:#fdeaea;--bd:#d5dde8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1722;--c:#182233;--t:#e8eef7;--m:#9aabc2;--p:#6ea3e8;--pl:#1f2f48;--g:#4cc27f;--gl:#16301f;--r:#ef7a7a;--rl:#3a1b1d;--bd:#2c3b52}}
+:root[data-theme="dark"]{--bg:#0f1722;--c:#182233;--t:#e8eef7;--m:#9aabc2;--p:#6ea3e8;--pl:#1f2f48;--g:#4cc27f;--gl:#16301f;--r:#ef7a7a;--rl:#3a1b1d;--bd:#2c3b52}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--t);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:680px;margin:0 auto;padding:16px}
+.card{background:var(--c);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:12px}
+h1{font-size:1.5rem;margin:0 0 8px}h2{font-size:1.15rem;margin:0 0 14px;line-height:1.4}
+p{margin:0 0 10px;color:var(--m)}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--bd);background:var(--c);color:var(--t);padding:11px 16px}
+button:disabled{opacity:.4;cursor:default}
+.pri{background:var(--p);color:var(--bg);border-color:var(--p);font-weight:600}
+.o{display:block;width:100%;text-align:left;margin-bottom:8px}
+.o.s{background:var(--pl);border-color:var(--p);font-weight:600}
+.row{display:flex;gap:8px;justify-content:space-between;align-items:center}
+.bar{height:6px;background:var(--pl);border-radius:3px;overflow:hidden;margin:6px 0 14px}
+#bar{height:100%;background:var(--p);width:0;transition:width .2s}
+.score{font-size:3rem;font-weight:700;color:var(--p);margin:4px 0}
+.rv{border-left:4px solid var(--bd)}.rv.ok{border-left-color:var(--g)}.rv.bad{border-left-color:var(--r)}
+.ok b{color:var(--g)}.bad b.x{color:var(--r)}
+.ex{background:var(--pl);border-radius:8px;padding:8px 10px;margin-top:8px;font-size:.92rem}
+.sm{font-size:.9rem;color:var(--m)}
+</style></head>
+<body><main>
+<section id="start" class="card">
+<h1>💉 Immunization &amp; Vaccination Quiz</h1>
+<p>40 clerkship-level MCQs based on the Sudan Expanded Program on Immunization (EPI): schedule, routes, vaccine types, contraindications and special situations.</p>
+<p>Choose one answer per question. You can go back and change answers. Your score and a full review appear at the end.</p>
+<button class="pri" onclick="start()">Start quiz</button>
+</section>
+<section id="quiz" hidden>
+<div class="row sm"><span id="pg"></span><span id="ans"></span></div>
+<div class="bar"><div id="bar"></div></div>
+<div class="card"><h2 id="q"></h2><div id="opts"></div></div>
+<div class="row"><button id="prev" onclick="i--;render()">← Previous</button><button id="next" class="pri" onclick="next()">Next →</button></div>
+</section>
+<section id="res" hidden>
+<div class="card" style="text-align:center">
+<p>Your result</p><div class="score" id="sc"></div><h2 id="pc" style="margin:0"></h2><p id="msg" style="margin-top:8px"></p>
+<button class="pri" onclick="start()">Try again</button>
+</div>
+<h2 style="margin:16px 4px 10px">Review &amp; explanations</h2>
+<div id="rev"></div>
+</section>
+</main>
+<script>
+const Q=[
+["Sudan’s Expanded Program on Immunization (EPI) was established in:",["1966","1976","1986","1996"],1,"EPI began in 1976."],
+["Sudan’s EPI currently protects children against how many diseases?",["6","8","11","15"],2,"It covers 11 diseases."],
+["A term newborn is delivered at a Wad Madani hospital. Which vaccines are due at birth?",["BCG + OPV0","Penta 1 + OPV0","BCG + IPV 1","Measles + BCG"],0,"Birth: BCG + OPV dose 0."],
+["At the 6-week visit in Omdurman, which vaccine is NOT scheduled?",["Rotavirus 1","IPV 1","Penta 1","Measles 1"],3,"Measles starts at 9 months."],
+["A 9-month-old in Kassala attends for immunization. Which set is due?",["Measles 1 + Meningococcal A + Yellow fever","Measles 2 + Penta 3 + IPV 2","BCG + MenA + OPV","Measles 1 + PCV3 + Rotavirus 2"],0,"9 months: Measles 1, MenA, yellow fever."],
+["The measles booster in the Sudan schedule is given at:",["12 months","15 months","18 months","5 years"],2,"Measles dose 2 is at 18 months."],
+["Which vaccine is given at 14 weeks but NOT at 10 weeks?",["Rotavirus","IPV 2","Penta","PCV"],1,"IPV is given at 6 and 14 weeks."],
+["What are the route and site of BCG vaccine?",["IM, right thigh","SC, right arm","Oral","Intradermal, left forearm"],3,"Intradermal, left forearm."],
+["BCG may be given up to what age?",["7 days","2 weeks","40 days","3 months"],2,"Up to 40 days of age."],
+["Which is a contraindication to BCG?",["Positive tuberculin test","Mild URTI","Exclusive breastfeeding","Mild diarrhea"],0,"Also HIV, immunocompromise and pregnancy."],
+["Pentavalent vaccine contains:",["DTwP + HepB + Hib","DTaP + IPV + Hib","DT + HepA + Hib","TT + HepB + MenA"],0,"Killed DTwP + Hepatitis B + Hib: 5 diseases in one shot."],
+["Pentavalent vaccine is injected at which site?",["Left thigh","Deltoid","Right thigh (IM)","Right arm (SC)"],2,"IM, right thigh."],
+["At 10 weeks, Penta 2 and PCV 2 are given as:",["Both in right thigh","Penta left thigh, PCV right thigh","Penta right thigh, PCV left thigh","Penta in arm, PCV in thigh"],2,"Penta right thigh; PCV left thigh."],
+["Measles vaccine is given by which route?",["IM thigh","Intradermal","Oral","Subcutaneous, right arm"],3,"Subcutaneous in the right arm."],
+["Why is the first measles dose delayed until 9 months?",["Maternal antibodies reduce the response","Immature gut absorption","Risk of intussusception","Vaccine unavailable earlier"],0,"Maternal antibodies interfere with measles vaccine."],
+["Meningococcal A vaccine (Sudan lies in the meningitis belt) is:",["Live attenuated, oral","Polysaccharide, IM thigh, 9 months","Toxoid, SC arm","Conjugate, IM at 6 weeks"],1,"Polysaccharide, IM thigh, at 9 months."],
+["Which of these is a live attenuated vaccine?",["IPV","Pentavalent","PCV","Yellow fever"],3,"Yellow fever, measles, BCG and OPV are live."],
+["Which is an inactivated (killed) vaccine?",["BCG","OPV","IPV","Measles"],2,"IPV (Salk) stimulates IgG."],
+["Pneumococcal conjugate vaccine (PCV) consists of:",["Live virus + egg protein","Killed bacteria + gelatin","Toxin + aluminum","Polysaccharide antigen linked to a protein carrier"],3,"Conjugation improves immunogenicity."],
+["Tetanus and diphtheria toxoids are:",["Live attenuated bacteria","Polysaccharide antigens","Modified non-toxic toxins that stimulate antitoxin","Recombinant viruses"],2,"Toxoids induce antitoxin antibodies."],
+["How many doses of rotavirus vaccine does a Sudanese infant receive?",["1","3","4","2"],3,"Two doses: 6 and 10 weeks."],
+["Rotavirus vaccine is contraindicated in an infant with a history of:",["Eczema","Neonatal jaundice","Intussusception","Mild fever"],2,"Intussusception history."],
+["The approximate risk of intussusception after rotavirus vaccine is:",["1:100","1:1,000","1:10,000","1:1,000,000"],2,"About 1:10,000."],
+["An infant lives with an immunodeficient sibling in an IDP camp. Which polio vaccine is preferred?",["OPV","Double-dose OPV","IPV","None"],2,"OPV is contraindicated in immunodeficient contacts; use IPV."],
+["IPV is given in Sudan at:",["Birth and 6 weeks","10 and 14 weeks","6 and 14 weeks","9 and 18 months"],2,"6 and 14 weeks."],
+["A 6-year-old with ALL on chemotherapy needs immunization. Which should be withheld?",["Tetanus toxoid","Measles (live)","Hepatitis B","IPV"],1,"Live vaccines are contraindicated during chemotherapy."],
+["Measles vaccine is contraindicated in a child with:",["Mild diarrhea","Breastfeeding","Anaphylaxis to neomycin","Mild cough"],2,"Also egg anaphylaxis, immunodeficiency, malignancy, pregnancy."],
+["Aluminum salts in vaccines act as:",["Preservatives","Stabilizers","Antibiotics","Adjuvants"],3,"Adjuvants enhance the immune response."],
+["Gelatin and sorbitol in vaccines serve as:",["Adjuvants","Preservatives","Suspending fluid","Stabilizers"],3,"Stabilizers maintain potency."],
+["A 10-week-old with a mild cold and low-grade fever is brought for Penta 2. Best action?",["Vaccinate today","Postpone until fully well","Give antibiotics, then restart series","Refer for admission"],0,"Minor illness does NOT prevent vaccination."],
+["A family displaced from Khartoum brings a 5-month-old who received only Penta 1 at 6 weeks. Best management?",["Restart the series","Give the next dose and continue the schedule","Give 3 doses today","Wait until 9 months"],1,"Never restart a lapsed series or add extra doses."],
+["Giving a vaccine at a shorter interval than recommended:",["Boosts immunity","Is safe if done once","May impair immune response","Replaces boosters"],2,"Never give doses at shorter intervals."],
+["Which disease common in Sudan can reduce response to tetanus toxoid, measles and rabies vaccines?",["Malaria","Scabies","Schistosomiasis","Trachoma"],0,"Malaria affects vaccine response."],
+["A child with chronic renal failure needs, in addition to the routine schedule:",["Pneumococcal + annual influenza vaccine","Rotavirus + BCG","OPV + varicella","Yellow fever + MenA"],0,"Withhold live vaccines during immunosuppression."],
+["In nephrotic syndrome, polyvalent pneumococcal vaccine is ideally given when the child is:",["In relapse on high-dose prednisolone","Edematous","In remission and off daily prednisolone","Before diagnosis only"],2,"Give in remission, off daily steroids."],
+["Hepatitis B vaccine schedule for an infant born to an HBsAg-positive mother:",["Birth, 1–2 months, 6 months","6, 10, 14 weeks only","9 and 18 months","Birth only"],0,"Add a 4th dose if the infant is preterm."],
+["Herd immunity means:",["Immunizing enough people prevents transmission even to the unimmunized","Vaccination protects only the vaccinated child","Everyone gets natural infection","Giving immunoglobulin to all contacts"],0,"Population coverage blocks transmission."],
+["A newborn is protected against tetanus by antibodies that crossed the placenta. This is:",["Natural active","Artificial active","Natural passive","Artificial passive"],2,"Transplacental antibodies = natural passive."],
+["Tetanus antitoxin given to an unimmunized patient with a dirty wound is:",["Natural active","Artificial active","Natural passive","Artificial passive"],3,"Administered preformed antitoxin = artificial passive."],
+["A mother fears fever and swelling after her baby’s vaccines. Best counseling?",["Say vaccines have no side effects","Advise skipping the next dose","Refer to hospital","Explain that mild pain, swelling, fever and irritability are expected"],3,"Counsel simply and empathetically about normal side effects."]
+];
+let i=0,A=[];const $=id=>document.getElementById(id);
+function show(id){["start","quiz","res"].forEach(x=>$(x).hidden=x!=id);scrollTo(0,0)}
+function start(){i=0;A=Q.map(()=>-1);render();show("quiz")}
+function render(){const q=Q[i];
+$("pg").textContent="Question "+(i+1)+" of "+Q.length;
+$("ans").textContent=A.filter(x=>x>=0).length+" answered";
+$("bar").style.width=((i+1)/Q.length*100)+"%";
+$("q").textContent=q[0];$("opts").innerHTML="";
+q[1].forEach((o,k)=>{const b=document.createElement("button");b.className="o"+(A[i]==k?" s":"");b.textContent="ABCD"[k]+". "+o;b.onclick=()=>{A[i]=k;render()};$("opts").append(b)});
+$("prev").disabled=i==0;$("next").textContent=i==Q.length-1?"Finish ✓":"Next →"}
+function next(){i<Q.length-1?(i++,render()):finish()}
+function finish(){
+const n=Q.filter((q,k)=>A[k]==q[2]).length,p=Math.round(n/Q.length*100),un=A.filter(x=>x<0).length;
+$("sc").textContent=n+" / "+Q.length;$("pc").textContent=p+"%";
+$("msg").textContent=(p>=80?"Excellent work!":p>=65?"Good job – review the missed items.":p>=50?"Pass – revise the topics below.":"Needs more revision – re-read the notes and try again.")+(un?" ("+un+" unanswered counted as incorrect.)":"");
+$("rev").innerHTML=Q.map((q,k)=>{const ok=A[k]==q[2];
+return `<div class="card rv ${ok?"ok":"bad"}"><div class="sm">Q${k+1} · ${ok?"<b>Correct</b>":"<b class='x'>Incorrect</b>"}</div><p style="color:var(--t);margin:4px 0 8px">${q[0]}</p>`+
+(ok?"":`<div class="sm">Your answer: ${A[k]<0?"not answered":q[1][A[k]]}</div>`)+
+`<div>✔ ${q[1][q[2]]}</div><div class="ex">${q[3]}</div></div>`}).join("");
+show("res")}
+</script>
+</body></html>
